@@ -35,7 +35,7 @@ components: sinks: azure_blob: {
 				enabled: true
 				codec: {
 					enabled: true
-					batched: true
+					framing: true
 					enum: ["json", "text"]
 				}
 			}

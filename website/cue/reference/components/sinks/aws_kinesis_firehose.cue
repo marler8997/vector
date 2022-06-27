@@ -36,6 +36,7 @@ components: sinks: aws_kinesis_firehose: components._aws & {
 				enabled: true
 				codec: {
 					enabled: true
+					framing: true
 					enum: ["json", "text"]
 				}
 			}

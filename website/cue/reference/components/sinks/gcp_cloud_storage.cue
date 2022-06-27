@@ -35,7 +35,7 @@ components: sinks: gcp_cloud_storage: {
 				enabled: true
 				codec: {
 					enabled: true
-					batched: true
+					framing: true
 					enum: ["json", "text"]
 				}
 			}
