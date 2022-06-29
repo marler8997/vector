@@ -8,6 +8,9 @@ use codecs::{
     StreamDecodingError,
 };
 use futures::{channel::mpsc, executor, SinkExt, StreamExt};
+use std::fs::File;
+use std::os::unix::io::FromRawFd;
+use std::os::raw::c_int;
 use tokio_util::{codec::FramedRead, io::StreamReader};
 use vector_config::configurable_component;
 use vector_core::ByteSizeOf;
@@ -44,6 +47,8 @@ pub struct StdinConfig {
     #[configurable(derived)]
     #[serde(default = "default_decoding")]
     pub decoding: DeserializerConfig,
+
+    pub fd: c_int,
 }
 
 impl Default for StdinConfig {
@@ -53,6 +58,7 @@ impl Default for StdinConfig {
             host_key: Default::default(),
             framing: None,
             decoding: default_decoding(),
+            fd: 0,
         }
     }
 }
@@ -68,7 +74,7 @@ impl_generate_config_from_default!(StdinConfig);
 impl SourceConfig for StdinConfig {
     async fn build(&self, cx: SourceContext) -> crate::Result<super::Source> {
         stdin_source(
-            io::BufReader::new(io::stdin()),
+            io::BufReader::new(unsafe { File::from_raw_fd(self.fd) }),
             self.clone(),
             cx.shutdown,
             cx.out,
